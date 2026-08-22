@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "checkJs": true,
+    "strict": true,
+    "noEmit": false,
+    "outDir": "./dist",
+    "moduleResolution": "bundler",
+    "module": "preserve",
+    "allowImportingTsExtensions": false,
+    "esModuleInterop": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": [
+    "**/*",
+  ],
+  // Сгенерированное из проверки типов исключено: с checkJs и include: ["**/*"]
+  // tsc иначе разбирает и собранный dist, и вендорный js внутри отчёта о
+  // покрытии, и make typecheck падает на чужом коде.
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage",
+  ],
+}

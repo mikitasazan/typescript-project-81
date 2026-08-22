@@ -1,0 +1,47 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.1.0",
+  "description": "Typescript boilerplate package",
+  "author": "Hexlet",
+  "license": "ISC",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hexlet-boilerplates/typescript-package.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hexlet-boilerplates/typescript-package/issues"
+  },
+  "homepage": "https://github.com/hexlet-boilerplates/typescript-package#readme",
+  "main": "dist/src/index.js",
+  "engines": {
+    "node": ">=21"
+  },
+  "scripts": {
+    "build": "rm -rf ./dist && tsc",
+    "start": "node dist/src/index.js",
+    "start:dev": "tsx ./src/index.ts",
+    "lint": "oxlint && oxfmt --ignore-path=.oxfmtignore --check",
+    "lint-fix": "oxfmt --ignore-path=.oxfmtignore && oxlint --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test-coverage": "vitest run --coverage"
+  },
+  "simple-git-hooks": {
+    "pre-push": "make lint"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@vitest/coverage-v8": "^4.1.0",
+    "npm-check-updates": "^19.6.5",
+    "oxfmt": "^0.63.0",
+    "oxlint": "^1.78.0",
+    "simple-git-hooks": "^2.13.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0"
+  },
+  "dependencies": {
+    "es-toolkit": "^1.45.1"
+  }
+}
