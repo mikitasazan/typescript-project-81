@@ -1,30 +1,61 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/mikitasazan/typescript-project-81/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/mikitasazan/typescript-project-81/actions)
 
-# typescript-package
+# Генератор форм на Typescript
 
-<!-- TODO: add the Typescript CI badge -->
+Библиотека для генерации HTML-форм из объекта с данными — классическое
+Hexlet-задание «hexlet-code» на TypeScript. `HexletCode.formFor(data,
+options, callback)` строит `<form>` с полями `input`/`textarea`/`select`,
+экранируя значения от XSS.
 
-## Setup
+## Стек
 
-```bash
-make install
+- TypeScript (сборка — `tsc`, дев-запуск — `tsx`)
+- Vitest — тесты и покрытие (порог 80% по всем метрикам, `vitest.config.ts`)
+- oxlint + oxfmt — линт и форматирование
 
-```
-## Start
-
-```bash
-make start
-```
-
-## Run tests
+## Использование
 
 ```bash
-make test
+make install   # npm ci
+make build     # tsc -> dist/
+make test      # vitest run
+make test-coverage
 ```
 
-[![Hexlet Ltd. logo](https://raw.githubusercontent.com/Hexlet/assets/master/images/hexlet_logo128.png)](https://hexlet.io/?utm_source=github&utm_medium=link&utm_campaign=nodejs-package)
+Пример использования (то же самое исполняется в `__tests__/index.test.ts`):
 
-This repository is created and maintained by the team and the community of Hexlet, an educational project. [Read more about Hexlet](https://hexlet.io/?utm_source=github&utm_medium=link&utm_campaign=nodejs-package).
+```ts
+import HexletCode from "./dist/src/index.js";
 
-See most active contributors on [hexlet-friends](https://friends.hexlet.io/).
+const html = HexletCode.formFor(
+  { name: "rebecca", job: "admin", bio: "..." },
+  { action: "/users", method: "post" },
+  (form) => {
+    form.input("name");
+    form.input("job", { as: "select", options: { admin: "Admin", regular: "Regular" } });
+    form.input("bio", { as: "textarea" });
+    form.submit("Save");
+  },
+);
+```
+
+Проверено вручную сборкой (`make build`) и прогоном собранного
+`dist/src/index.js` с реальными данными, включая значение с `<script>`,
+`&` и кавычками — экранирование в атрибутах и в теле `<textarea>` работает
+корректно.
+
+## Что было не так и что исправлено (2026-09-02)
+
+- `src/index.ts` — единственный реальный код проекта — был явно исключён из
+  покрытия в `vitest.config.ts` (`exclude: ["src/index.ts"]`), с комментарием
+  «её не тестируют». Порог покрытия 80% был зелёным при нуле тестов на
+  фактическую логику; единственный существовавший тест проверял только
+  оставшийся от болерплейта `sum.ts`. Добавлены реальные тесты
+  (`__tests__/index.test.ts`, 10 тестов, 100% строк/операторов/функций,
+  91.66% ветвей), исключение убрано, `sum.ts`/`sum.test.ts` удалены как
+  мёртвый код.
+- Отдельный воркфлоу `.github/workflows/typescript.yml` (линт + typecheck +
+  покрытие) был настроен на триггер `branches: main`, а у репозитория
+  дефолтная ветка — `master`; воркфлоу никогда не запускался. Исправлено на
+  `master`.

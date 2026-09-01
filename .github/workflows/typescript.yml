@@ -5,10 +5,10 @@ name: Typescript CI
 on:
   pull_request:
     branches:
-      - main
+      - master
   push:
     branches:
-      - main
+      - master
 
 env:
   CI: true
