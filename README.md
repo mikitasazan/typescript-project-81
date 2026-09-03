@@ -30,7 +30,7 @@ import HexletCode from "./dist/src/index.js";
 
 const html = HexletCode.formFor(
   { name: "rebecca", job: "admin", bio: "..." },
-  { action: "/users", method: "post" },
+  { url: "/users", method: "post" },
   (form) => {
     form.input("name");
     form.input("job", { as: "select", options: { admin: "Admin", regular: "Regular" } });
@@ -44,6 +44,24 @@ const html = HexletCode.formFor(
 `dist/src/index.js` с реальными данными, включая значение с `<script>`,
 `&` и кавычками — экранирование в атрибутах и в теле `<textarea>` работает
 корректно.
+
+## Что было не так и что исправлено (2026-09-03)
+
+- Пакет никогда не собирался перед тем, как его импортировал внешний
+  тестовый жгут проверки (`import HexletCode from "@hexlet/code"` резолвится
+  через `node_modules`, куда пакет попадает как `file:`-зависимость) — `dist/`
+  не в git, а команда `npm run build` нигде не вызывалась. Добавлен
+  `"prepare": "npm run build"` в `package.json`: он выполняется на каждый
+  `npm install`, включая установку пакета как `file:`-зависимости, и держит
+  `dist/` актуальным.
+- Реализация не соответствовала реальному контракту задания (взятому из
+  фикстур настоящей проверки, не только из текста шагов): порядок атрибутов
+  `<form>` — `method` затем `action`; `<textarea>` всегда получает
+  `cols="20" rows="40"` по умолчанию (переопределяемо через `options`);
+  опция `url` задаёт `action`; `input()` бросает `Error`, если поля нет в
+  переданном шаблоне; `label`/`labelHtml` в опциях `input()` задают текст и
+  дополнительные HTML-атрибуты лейбла. Все переписаны в `src/index.ts`, тесты
+  в `__tests__/index.test.ts` обновлены под тот же контракт.
 
 ## Что было не так и что исправлено (2026-09-02)
 

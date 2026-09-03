@@ -7,7 +7,7 @@ test("renders a plain text input with the current value", () => {
   });
 
   expect(html).toBe(
-    '<form action="#" method="post"><label for="name">Name</label>' +
+    '<form method="post" action="#"><label for="name">Name</label>' +
       '<input name="name" type="text" value="rebecca"></form>',
   );
 });
@@ -20,12 +20,29 @@ test("uses a custom label when given one", () => {
   expect(html).toContain('<label for="job">Occupation</label>');
 });
 
-test("renders a textarea for the 'as: textarea' option", () => {
+test("adds extra attributes to the label via labelHtml", () => {
+  const html = HexletCode.formFor({ name: "rob" }, {}, (form) => {
+    form.input("name", { label: "User", labelHtml: { class: "form-label", id: "name-label" } });
+  });
+
+  expect(html).toContain('<label for="name" class="form-label" id="name-label">User</label>');
+});
+
+test("renders a textarea for the 'as: textarea' option, cols/rows defaulting to 20/40", () => {
   const html = HexletCode.formFor({ bio: "hello" }, {}, (form) => {
     form.input("bio", { as: "textarea" });
   });
 
-  expect(html).toContain('<textarea name="bio">hello</textarea>');
+  expect(html).toContain('<textarea cols="20" rows="40" name="bio">hello</textarea>');
+});
+
+test("overrides textarea cols/rows and does not render 'as' as an attribute", () => {
+  const html = HexletCode.formFor({ bio: "hello" }, {}, (form) => {
+    form.input("bio", { as: "textarea", rows: 50, cols: 50 });
+  });
+
+  expect(html).toContain('<textarea cols="50" rows="50" name="bio">hello</textarea>');
+  expect(html).not.toContain('as="textarea"');
 });
 
 test("renders a select with the matching option marked selected", () => {
@@ -37,12 +54,20 @@ test("renders a select with the matching option marked selected", () => {
   expect(html).toContain('<option value="regular">Regular</option>');
 });
 
-test("falls back to an empty string for a missing field value", () => {
-  const html = HexletCode.formFor({}, {}, (form) => {
-    form.input("name");
+test("forwards unknown options as extra HTML attributes on the control", () => {
+  const html = HexletCode.formFor({ name: "rob" }, {}, (form) => {
+    form.input("name", { class: "user-input" });
   });
 
-  expect(html).toContain('<input name="name" type="text" value="">');
+  expect(html).toContain('<input name="name" type="text" value="rob" class="user-input">');
+});
+
+test("throws when a field is missing from the template", () => {
+  expect(() =>
+    HexletCode.formFor({ name: "rob" }, {}, (form) => {
+      form.input("age");
+    }),
+  ).toThrow(Error);
 });
 
 test("escapes HTML special characters in field values, not just literal tags", () => {
@@ -68,24 +93,24 @@ test("escapes a field name used as an HTML attribute", () => {
   expect(html).toContain('name="a&quot;b"');
 });
 
-test("renders a submit button, defaulting its label to Submit", () => {
+test("renders a submit button, defaulting its label to Save", () => {
   const withDefault = HexletCode.formFor({}, {}, (form) => {
     form.submit();
   });
   const withLabel = HexletCode.formFor({}, {}, (form) => {
-    form.submit("Save");
+    form.submit("Wow");
   });
 
-  expect(withDefault).toContain('<input type="submit" value="Submit">');
-  expect(withLabel).toContain('<input type="submit" value="Save">');
+  expect(withDefault).toContain('<input type="submit" value="Save">');
+  expect(withLabel).toContain('<input type="submit" value="Wow">');
 });
 
-test("honors a custom action and method, defaulting to # / post", () => {
+test("honors a custom url and method, defaulting to # / post", () => {
   const defaults = HexletCode.formFor({}, {}, () => {});
-  const custom = HexletCode.formFor({}, { action: "/users", method: "patch" }, () => {});
+  const custom = HexletCode.formFor({}, { url: "/users", method: "patch" }, () => {});
 
-  expect(defaults).toBe('<form action="#" method="post"></form>');
-  expect(custom).toBe('<form action="/users" method="patch"></form>');
+  expect(defaults).toBe('<form method="post" action="#"></form>');
+  expect(custom).toBe('<form method="patch" action="/users"></form>');
 });
 
 test("renders fields in the order .input()/.submit() were called", () => {
